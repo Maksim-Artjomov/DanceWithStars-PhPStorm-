@@ -70,10 +70,11 @@ if (isset($_SESSION["kasutaja"])){
     <th>Tantsupaari nimi</th>
     <th>Punktid</th>
     <th>Ava paev</th>
+    <th>Kommentaarid</th>
     <?php
     global $yhendus;
-    $kask = $yhendus->prepare("select id, tantsupaar, punktid, ava_paev from tantsud where avalik=1");
-    $kask->bind_result($id, $tantsupaar, $punktid, $paev);
+    $kask = $yhendus->prepare("select id, tantsupaar, punktid, ava_paev, kommentaarid from tantsud where avalik=1");
+    $kask->bind_result($id, $tantsupaar, $punktid, $paev, $komment);
     $kask->execute();
     while ($kask->fetch()) {
         echo "<tr>";
@@ -81,7 +82,13 @@ if (isset($_SESSION["kasutaja"])){
         echo "<td>".$tantsupaar."</td>";
         echo "<td>".$punktid."</td>";
         echo "<td>".$paev."</td>";
-
+        echo "<td>".$komment."</td>";
+        echo "<td>
+<form action='?'>
+        <input type='hidden' value='$id' name='komment'>
+        <input type='text' name='uuskomment' id='uuskomment'>
+        <input type='submit' value='OK'>
+</form>";
         if (!(isset($_SESSION['kasutaja']) && isAdmin())) {
             echo "<td><a href='?heatants=$id'>Lisa +1punkt</a>   |
                           <a href='?halbtants=$id'>Lisa -1punkt</a>   |
