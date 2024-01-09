@@ -14,6 +14,21 @@ if (isset($_REQUEST["heatants"]) && isAdmin()) {
     $kask->execute();
 }
 
+// kommentaaride lisamine
+if (isset($_REQUEST["komment"])) {
+    if (isset($_REQUEST["uuskomment"]) && !empty($_REQUEST["uuskomment"])) {
+        global $yhendus;
+        $kask = $yhendus->prepare("update tantsud set Kommentaarid = concat(Kommentaarid, ?) where id = ?");
+        $kommentplus = $_REQUEST["uuskomment"] . "\n";
+        $kask->bind_param("si", $kommentplus, $_REQUEST["komment"]);
+        $kask->execute();
+        $kask->close();
+
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit();
+    }
+}
+
 // tantsupaari lisamine
 if (isset($_REQUEST["paarinimi"]) && !empty($_REQUEST["paarinimi"]) && isAdmin()) {
     global $yhendus;
@@ -73,7 +88,7 @@ if (isset($_SESSION["kasutaja"])){
     <th>Kommentaarid</th>
     <?php
     global $yhendus;
-    $kask = $yhendus->prepare("select id, tantsupaar, punktid, ava_paev, kommentaarid from tantsud where avalik=1");
+    $kask = $yhendus->prepare("select id, tantsupaar, punktid, ava_paev, Kommentaarid from tantsud where avalik=1");
     $kask->bind_result($id, $tantsupaar, $punktid, $paev, $komment);
     $kask->execute();
     while ($kask->fetch()) {
@@ -82,7 +97,7 @@ if (isset($_SESSION["kasutaja"])){
         echo "<td>".$tantsupaar."</td>";
         echo "<td>".$punktid."</td>";
         echo "<td>".$paev."</td>";
-        echo "<td>".$komment."</td>";
+        echo "<td>".nl2br(htmlspecialchars($komment))."</td>";
         echo "<td>
 <form action='?'>
         <input type='hidden' value='$id' name='komment'>
